@@ -47,7 +47,8 @@ public:
 };
 
 void console::handle_keypress(wchar_t key_code){
-    if (iswalpha(key_code) || key_code == L' ') {
+    bool legit_space = key_code == L' ' && !content.empty() && content.back() != L' ';
+    if (iswalpha(key_code) || legit_space) {
         content += key_code;
         drawer.update_text(content);
     }
