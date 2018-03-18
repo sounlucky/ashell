@@ -5,6 +5,8 @@
 console_drawer::console_drawer(HWND hwnd) {
     dc = GetDC(hwnd);
     assert(dc);
+    SetBkMode(dc, TRANSPARENT);
+    SetTextColor(dc, settings::console_text_color);
 }
 
 void console_drawer::update_text(const std::wstring & str) const {

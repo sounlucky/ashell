@@ -47,8 +47,10 @@ public:
 };
 
 void console::handle_keypress(wchar_t key_code){
-    content += key_code;
-    drawer.update_text(content);
+    if (iswalpha(key_code) || key_code == L' ') {
+        content += key_code;
+        drawer.update_text(content);
+    }
 }
 
 LRESULT CALLBACK console::msg_callback

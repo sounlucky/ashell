@@ -14,6 +14,8 @@ namespace {
         wchar_t* background_name = L"bg.jpg";
         
         auto open_console_key = VK_OEM_3;
+        auto console_background_color = RGB(0xFF-50, 0xFF-50, 0xFF);//blue-ish
+        auto console_text_color = RGB(0, 0, 0);
         auto console_width_offset = width * 0.25f / 2;
         auto console_width = width * 0.75f;
         auto console_height_offset = 30;

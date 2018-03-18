@@ -3,6 +3,7 @@
 #include <windows.h>
 #include "console.h"
 #include "desktop.h"
+#include "settings.h"
 
 using callback_ret_t = LRESULT CALLBACK;
 typedef callback_ret_t(*msg_callback_t)(HWND, UINT, WPARAM, LPARAM);
@@ -17,7 +18,7 @@ void init_console_class() {
     wc.hInstance     = global_instance;
     wc.hIcon         = LoadIcon(nullptr, IDI_APPLICATION);
     wc.hCursor       = LoadCursor(nullptr, IDC_ARROW);
-    wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW);
+    wc.hbrBackground = CreateSolidBrush(settings::console_background_color);
     wc.lpszMenuName  = nullptr;
     wc.lpszClassName = L"console_class";
     wc.hIconSm       = LoadIcon(nullptr, IDI_APPLICATION);
