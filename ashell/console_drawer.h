@@ -8,5 +8,6 @@ class console_drawer
 public:
     console_drawer(HWND);
     void update_text(const std::wstring&) const;
+    void test();
 };
 
