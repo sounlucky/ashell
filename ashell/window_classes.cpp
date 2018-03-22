@@ -1,6 +1,6 @@
 #include <cassert>
-#include "window_classes.h"
 #include <windows.h>
+#include "window_classes.h"
 #include "console.h"
 #include "desktop.h"
 
