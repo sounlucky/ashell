@@ -1,21 +1,34 @@
+#include <cassert>
 #include "console_drawer.h"
 #include "settings.h"
-#include <cassert>
 
-console_drawer::console_drawer(HWND hwnd) {
-    dc = GetDC(hwnd);
+console_drawer::console_drawer(HWND hwnd) :
+    dc(GetDC(hwnd)),
+    rect{
+        static_cast<LONG>(settings::console::width_offset),
+        static_cast<LONG>(settings::console::height_offset + settings::console::height / 4),
+        static_cast<LONG>(settings::console::width_offset + settings::console::width),
+        static_cast<LONG>(settings::console::height_offset + settings::console::height)
+    }
+{
     assert(dc);
+    LOGBRUSH logbrush { BS_NULL, DIB_RGB_COLORS, 0 };
+    pen = ExtCreatePen(PS_GEOMETRIC, PS_NULL, &logbrush, 0, nullptr);
+    SelectObject(dc, pen);
     SetBkMode(dc, TRANSPARENT);
-    SetTextColor(dc, settings::console_text_color);
+    SetTextColor(dc, settings::console::text_color);
+    Rectangle(dc, 
+        settings::console::width_offset, 
+        settings::console::height_offset, 
+        settings::console::width_offset + settings::console::width, 
+        settings::console::height_offset + settings::console::height
+    );
 }
 
-void console_drawer::update_text(const std::wstring & str) const {
-    RECT rect;
-    SetRect(&rect, 
-        0, 
-        settings::console_height / 4, 
-        settings::console_width_offset + settings::console_width, 
-        settings::console_height_offset + settings::console_width_offset
-    );
-    DrawText(dc, str.c_str(), str.size(), &rect, DT_LEFT);
+console_drawer::~console_drawer() {
+    DeleteObject(pen);
+}
+
+void console_drawer::update_text(const std::wstring & str) {
+    DrawText(dc, str.c_str(), static_cast<int>(str.size()), &rect, DT_LEFT);
 }

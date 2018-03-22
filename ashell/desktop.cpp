@@ -18,9 +18,9 @@ desktop::desktop() {
     std::unique_ptr<Bitmap> originalBitmap(Bitmap::FromFile(L"bg.jpg"));
 
     //load and scale
-    float horizontalScalingFactor = static_cast<float>(settings::width) / originalBitmap->GetWidth();
-    float verticalScalingFactor = static_cast<float>(settings::height) / originalBitmap->GetHeight();
-    background.reset(new Bitmap(settings::width, settings::height));
+    float horizontalScalingFactor = static_cast<float>(settings::system::display_width) / originalBitmap->GetWidth();
+    float verticalScalingFactor = static_cast<float>(settings::system::display_height) / originalBitmap->GetHeight();
+    background.reset(new Bitmap(settings::system::display_width, settings::system::display_height));
 
     Graphics g(background.get());
     g.ScaleTransform(horizontalScalingFactor, verticalScalingFactor);
@@ -35,8 +35,8 @@ desktop::desktop() {
         WS_POPUP,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
-        settings::width,
-        settings::height,
+        settings::system::display_width,
+        settings::system::display_height,
         nullptr,
         nullptr,
         global_instance,
@@ -70,7 +70,7 @@ void desktop::refresh_cycle(){
         frame_counter++;
 
         //draw
-        BitBlt(main_device, 0, 0, settings::width, settings::height,
+        BitBlt(main_device, 0, 0, settings::system::display_width, settings::system::display_height,
             front_device, 0, 0, SRCCOPY
         );
         DeleteDC(front_device);
@@ -83,9 +83,9 @@ void desktop::refresh_cycle(){
 
         auto elapsed = std::chrono::high_resolution_clock::now() - frame_start;
         //dbg << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << '\n';
-        std::this_thread::sleep_for(settings::delay - elapsed);
+        std::this_thread::sleep_for(settings::internal::delay - elapsed);
         if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - second_start).count() >= 1) {
-            if (frame_counter < settings::fps)
+            if (frame_counter < settings::internal::fps)
                 dbg << "fps:[" << frame_counter << "]\n";
             frame_counter = 0;
             second_start = std::chrono::high_resolution_clock::now();
@@ -128,11 +128,11 @@ void manage_desktop() {
 
     MSG msg;
     while (GetMessage(&msg, nullptr, 0, 0)) {
-        if (GetAsyncKeyState(settings::open_console_key)) {
+        if (GetAsyncKeyState(settings::console::open_key)) {
             open_console();
         }
         TranslateMessage(&msg);
         DispatchMessage(&msg);
-        std::this_thread::sleep_for(settings::msg_input_delay);
+        std::this_thread::sleep_for(settings::internal::msg_input_delay);
     }
 }

@@ -5,8 +5,12 @@
 class console_drawer
 {
     HDC dc;
+    RECT rect;
+    HPEN pen;
 public:
     console_drawer(HWND);
-    void update_text(const std::wstring&) const;
+    ~console_drawer();
+
+    void update_text(const std::wstring&);
 };
 

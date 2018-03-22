@@ -50,7 +50,7 @@ void console::handle_keypress(wchar_t key_code){
     bool legit_space = key_code == L' ' && !content.empty() && content.back() != L' ';
     if (iswalpha(key_code) || legit_space) {
         content += key_code;
-        drawer.update_text(content);
+        drawer->update_text(content);
     }
 }
 
@@ -67,7 +67,7 @@ LRESULT CALLBACK console::msg_callback
             //console_ptr.reset(nullptr);
         return true;
     case WM_KEYDOWN:
-        if (wParam == settings::open_console_key) {
+        if (wParam == settings::console::open_key) {
             console_access_manager::access().exit();
         }
         else {
@@ -92,19 +92,19 @@ console::console():
             L"console_class",
             nullptr,//no need for title (:
             WS_POPUP,
-            settings::console_width_offset,
-            settings::console_height_offset,
-            settings::console_width,
-            settings::console_height,
+            0,
+            0,
+            settings::system::display_width,
+            settings::system::display_height,
             nullptr,
             nullptr,
             global_instance,
             nullptr)
-        ) , 
-    drawer(hwnd)
+        )
 {
     assert(hwnd);
-    SetWindowPos(hwnd,            // handle to window
+    SetWindowPos(
+        hwnd,                    // handle to window
         HWND_TOPMOST,             // placement-order handle
         0,                        // horizontal position
         0,                        // vertical position
@@ -114,6 +114,7 @@ console::console():
     SetForegroundWindow(hwnd);
     ShowWindow(hwnd, SW_RESTORE);
     UpdateWindow(hwnd);
+    drawer.reset(new console_drawer(hwnd));//after window is actually on
 }
 
 console::~console(){    
@@ -130,13 +131,13 @@ void console_routine() {
     while (true) {
         PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
         if (!console_access_manager::access().console_routine_running) {
-            std::this_thread::sleep_for(settings::console_fade);
+            std::this_thread::sleep_for(settings::console::fade);
             console_access_manager::access().console_routine_running = true;
             return;
         }
         TranslateMessage(&msg);
         DispatchMessage(&msg);
-        std::this_thread::sleep_for(settings::msg_input_delay);
+        std::this_thread::sleep_for(settings::internal::msg_input_delay);
     }
 }
 

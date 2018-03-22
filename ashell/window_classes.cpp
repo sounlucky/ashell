@@ -1,15 +1,14 @@
-#include "window_classes.h"
 #include <cassert>
+#include "window_classes.h"
 #include <windows.h>
 #include "console.h"
 #include "desktop.h"
-#include "settings.h"
 
 using callback_ret_t = LRESULT CALLBACK;
 typedef callback_ret_t(*msg_callback_t)(HWND, UINT, WPARAM, LPARAM);
 
 void init_console_class() {
-    WNDCLASSEX& wc = *(new WNDCLASSEX);//an arg to RegisterClassEx
+    WNDCLASSEX& wc = *new WNDCLASSEX;//an arg to RegisterClassEx
     wc.cbSize        = sizeof(WNDCLASSEX);
     wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc   = reinterpret_cast<decltype(wc.lpfnWndProc)>(console::msg_callback);
@@ -18,7 +17,7 @@ void init_console_class() {
     wc.hInstance     = global_instance;
     wc.hIcon         = LoadIcon(nullptr, IDI_APPLICATION);
     wc.hCursor       = LoadCursor(nullptr, IDC_ARROW);
-    wc.hbrBackground = CreateSolidBrush(settings::console_background_color);
+    wc.hbrBackground = nullptr;
     wc.lpszMenuName  = nullptr;
     wc.lpszClassName = L"console_class";
     wc.hIconSm       = LoadIcon(nullptr, IDI_APPLICATION);
@@ -28,7 +27,7 @@ void init_console_class() {
 }
 
 void init_background_class() {
-    WNDCLASSEX& wc = *(new WNDCLASSEX);//an arg to RegisterClassEx
+    WNDCLASSEX& wc = *new WNDCLASSEX;//an arg to RegisterClassEx
     wc.cbSize        = sizeof(WNDCLASSEX);
     wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc   = reinterpret_cast<decltype(wc.lpfnWndProc)>(desktop::msg_callback);
