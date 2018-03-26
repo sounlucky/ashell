@@ -2,7 +2,6 @@
 #include <gdiplus.h>
 #include <cassert>
 #include <chrono>
-
 #include <memory>
 #include <thread>
 #include "window_classes.h"
@@ -10,24 +9,10 @@
 #include "dbg.h"
 #include "desktop.h"
 #include "settings.h"
+#include "layer_hierarchy.h"
+#include "static_image.h"
 
 desktop::desktop() {
-    using namespace Gdiplus;
-
-    std::unique_ptr<Bitmap> background;
-    std::unique_ptr<Bitmap> originalBitmap(Bitmap::FromFile(L"bg.jpg"));
-
-    //load and scale
-    float horizontalScalingFactor = static_cast<float>(settings::system::display_width) / originalBitmap->GetWidth();
-    float verticalScalingFactor = static_cast<float>(settings::system::display_height) / originalBitmap->GetHeight();
-    background.reset(new Bitmap(settings::system::display_width, settings::system::display_height));
-
-    Graphics g(background.get());
-    g.ScaleTransform(horizontalScalingFactor, verticalScalingFactor);
-    g.DrawImage(originalBitmap.get(), 0, 0);
-    Status s1 = background.get()->GetHBITMAP(Color::Black, &h_backgroundbitmap);
-    assert(s1 == Ok);
-
     hwnd = CreateWindowEx(
         WS_EX_APPWINDOW,
         L"background_class",
@@ -47,29 +32,23 @@ desktop::desktop() {
     UpdateWindow(hwnd);
 }
 
-void desktop::update(HDC device){
-    SelectObject(device, h_backgroundbitmap);
-    auto temp = CreateCompatibleDC(main_device);
-   
-    DeleteDC(temp);
-}
-
 void desktop::refresh_cycle(){
-    //main + two buffers
     SetLastError(0);//std::thread may set random 126 value
     auto front_device = CreateCompatibleDC(main_device);
-    decltype(front_device) back_device;
-
+    decltype(front_device) back_device = nullptr;
     size_t frame_counter = 0;
     auto second_start = std::chrono::high_resolution_clock::now();
+    layers.add_layer(new static_image(L"girl.jpg", {50,200}));
+    layers.add_layer(new static_image(L"Banana.png", { 100,200 }));
+    auto image = static_image(L"Banana.png", { 100,200 });
     while (true) {
         auto lasterror = GetLastError();
         assert(lasterror == 0);
-
         auto frame_start = std::chrono::high_resolution_clock::now();
         frame_counter++;
 
         //draw
+        Rectangle(front_device, 100, 20, 300, 400);
         BitBlt(main_device, 0, 0, settings::system::display_width, settings::system::display_height,
             front_device, 0, 0, SRCCOPY
         );
@@ -77,7 +56,7 @@ void desktop::refresh_cycle(){
 
         //calculate graphics
         back_device = CreateCompatibleDC(main_device);
-        update(back_device);
+        layers.apply(main_device);
 
         std::swap(front_device, back_device);
 
@@ -86,7 +65,7 @@ void desktop::refresh_cycle(){
         std::this_thread::sleep_for(settings::internal::delay - elapsed);
         if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - second_start).count() >= 1) {
             if (frame_counter < settings::internal::fps)
-                dbg << "fps:[" << frame_counter << "]\n";
+                dbg << "dropping fps! got " << frame_counter << " frames, expected " << settings::internal::fps << "; elapsed " << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << "ms, expected " << settings::internal::delay.count() <<"ms\n";
             frame_counter = 0;
             second_start = std::chrono::high_resolution_clock::now();
         }

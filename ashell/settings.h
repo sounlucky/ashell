@@ -1,7 +1,6 @@
 #pragma once
 #include <chrono>
 
-
 namespace {
     namespace settings {
         namespace system {

@@ -1,17 +1,17 @@
 #pragma once
 #include <thread>
 #include <windows.h>
+#include "layer_hierarchy.h"
 
 extern HINSTANCE global_instance;
 
 class desktop {
-    HBITMAP h_backgroundbitmap;
     HDC main_device;
     HWND hwnd;
+    layer_hierarchy layers;
 
     desktop();
 
-    void update(HDC);
     void refresh_cycle();
 public:
     std::thread start_refresh_cycle();
@@ -22,5 +22,5 @@ public:
         return instance;
     }
 };
-
+ 
 void manage_desktop();
