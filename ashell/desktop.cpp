@@ -34,11 +34,11 @@ desktop::desktop() {
 
 void desktop::refresh_cycle(){
     SetLastError(0);//std::thread may set random 126 value
-    auto front_device = CreateCompatibleDC(main_device);
-    decltype(front_device) back_device = nullptr;
+    auto front_bitmap = CreateCompatibleBitmap(main_device, settings::system::display_width, settings::system::display_height);
+    auto back_bitmap = CreateCompatibleBitmap(main_device, settings::system::display_width, settings::system::display_height);
     size_t frame_counter = 0;
     auto second_start = std::chrono::high_resolution_clock::now();
-    layers.add_layer(new static_image(L"girl.jpg", {50,200}));
+    layers.add_layer(new static_image(L"girl.jpg", { 50,200 }));
     layers.add_layer(new static_image(L"Banana.png", { 100,200 }));
     auto image = static_image(L"Banana.png", { 100,200 });
     while (true) {
@@ -48,22 +48,25 @@ void desktop::refresh_cycle(){
         frame_counter++;
 
         //draw
-        Rectangle(front_device, 100, 20, 300, 400);
+        auto temp_front_device = CreateCompatibleDC(main_device);
+        ::SelectObject(temp_front_device, front_bitmap);
         BitBlt(main_device, 0, 0, settings::system::display_width, settings::system::display_height,
-            front_device, 0, 0, SRCCOPY
+            temp_front_device, 0, 0, SRCCOPY
         );
-        DeleteDC(front_device);
+        DeleteDC(temp_front_device);
 
         //calculate graphics
-        back_device = CreateCompatibleDC(main_device);
-        layers.apply(main_device);
+        auto temp_back_device = CreateCompatibleDC(main_device);
+        ::SelectObject(temp_back_device, back_bitmap);
+        layers.apply(temp_back_device);
+        DeleteDC(temp_back_device);
 
-        std::swap(front_device, back_device);
+        std::swap(front_bitmap, back_bitmap);
 
         auto elapsed = std::chrono::high_resolution_clock::now() - frame_start;
-        //dbg << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << '\n';
         std::this_thread::sleep_for(settings::internal::delay - elapsed);
         if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - second_start).count() >= 1) {
+            //every second
             if (frame_counter < settings::internal::fps)
                 dbg << "dropping fps! got " << frame_counter << " frames, expected " << settings::internal::fps << "; elapsed " << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << "ms, expected " << settings::internal::delay.count() <<"ms\n";
             frame_counter = 0;
