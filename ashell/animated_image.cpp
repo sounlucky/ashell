@@ -1,6 +1,6 @@
 #include "animated_image.h"
 
-void animated_image::apply(HDC){
+void apply(std::unique_ptr<ID2D1HwndRenderTarget>&) {
 
 }
 

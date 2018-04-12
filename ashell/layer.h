@@ -1,6 +1,7 @@
 #pragma once
 #include <windows.h>
-
+#include <d2d1.h>
+#include <memory>
 class layer
 {
 protected:
@@ -10,6 +11,6 @@ protected:
 public:
     layer(RECT&&, POINT p = {0,0});
     bool is_done() const { return done; }
-    virtual void apply(HDC) = 0;
+    virtual void apply(std::unique_ptr<ID2D1HwndRenderTarget>&) = 0;
     virtual ~layer();
 };

@@ -18,6 +18,6 @@ public:
 
     virtual void on_start();
     virtual void on_finish();
-    void animated_image::apply(HDC) override;
+    virtual void apply(std::unique_ptr<ID2D1HwndRenderTarget>&) override;
     virtual ~animated_image() {}
 };

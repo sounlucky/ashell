@@ -83,5 +83,8 @@
     <ClInclude Include="window_classes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="msdn_releaser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

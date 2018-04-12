@@ -2,43 +2,61 @@
 #include <memory>
 #include <cassert>
 #include <windows.h>
-#include <gdiplus.h>
+#include <Wincodec.h>
 #include "static_image.h"
 
-static_image::static_image(std::wstring path, POINT origin): static_image(path) {
+static_image::static_image(std::wstring path, std::unique_ptr<ID2D1HwndRenderTarget>& render_target, POINT origin):
+    static_image(path, render_target)
+{
     this->origin = origin;
 }
 
-static_image::static_image(std::wstring path): 
-    layer({0,0,0,0}){
+static_image::static_image(std::wstring path, std::unique_ptr<ID2D1HwndRenderTarget>& render_target):
+    layer({0,0,0,0}),
+    p_bitmap(nullptr,
+        [](decltype(p_bitmap.get()) bitmap) {
+            SafeRelease(&bitmap);
+        }) 
+{
+    IWICImagingFactory* d2dWICFactory = nullptr;
+    IWICBitmapDecoder* d2dDecoder = nullptr;
+    IWICFormatConverter* d2dConverter = nullptr;
+    IWICBitmapFrameDecode* d2dBmpSrc = nullptr;
+    ID2D1Bitmap* d2dBmp = nullptr;
 
-    using namespace Gdiplus;
+    CoInitialize(nullptr);
 
-    std::unique_ptr<Bitmap> gdiplus_bitmap(Bitmap::FromFile(path.c_str()));
+    auto hr = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER,
+        __uuidof(IWICImagingFactory), (void**)(&d2dWICFactory));
+    assert(SUCCEEDED(hr));
+    hr = d2dWICFactory->CreateDecoderFromFilename(path.c_str(), NULL, GENERIC_READ,
+        WICDecodeMetadataCacheOnLoad, &d2dDecoder);
+    assert(SUCCEEDED(hr));
+    hr = d2dWICFactory->CreateFormatConverter(&d2dConverter);
+    assert(SUCCEEDED(hr));
+    hr = d2dDecoder->GetFrame(0, &d2dBmpSrc);
+    assert(SUCCEEDED(hr));
+    hr = d2dConverter->Initialize(d2dBmpSrc, GUID_WICPixelFormat32bppPBGRA,
+        WICBitmapDitherTypeNone, NULL, 0.f, WICBitmapPaletteTypeMedianCut);
+    assert(SUCCEEDED(hr));
+    hr = render_target->CreateBitmapFromWicBitmap(d2dConverter, NULL, &d2dBmp);
+    assert(SUCCEEDED(hr));
+    p_bitmap.reset(d2dBmp);
+    
+    //filling area
+    auto sz = p_bitmap->GetPixelSize();
+    area.bottom = sz.height;
+    area.right = sz.width;
 
-    area.bottom = gdiplus_bitmap->GetHeight();
-    area.right = gdiplus_bitmap->GetWidth();
-
-    Status s1 = gdiplus_bitmap.get()->GetHBITMAP(Color::Transparent, &h_bitmap);
-    assert(s1 == Ok);
+    //releasing stuff
+    SafeRelease(&d2dWICFactory);
+    SafeRelease(&d2dDecoder);
+    SafeRelease(&d2dConverter);
+    SafeRelease(&d2dBmpSrc);
 }
 
-void static_image::apply(HDC hdc) {
-    auto temp_dc = CreateCompatibleDC(hdc);
-    SelectObject(temp_dc, h_bitmap);
-    auto res = TransparentBlt(
-        hdc,
-        origin.x, origin.y, 
-        area.right - area.left, area.bottom - area.top,
-        temp_dc, 
-        0, 0, 
-        area.right, area.bottom,
-        Gdiplus::Color::Transparent
-    );
-    assert(res);
-    DeleteDC(temp_dc);
-}
-
-static_image::~static_image(){
-    DeleteObject(h_bitmap);
+void static_image::apply(std::unique_ptr<ID2D1HwndRenderTarget>& render_target) {
+    render_target->DrawBitmap(p_bitmap.get(), //does not work, todo
+        { static_cast<float>(origin.x + area.left), static_cast<float>(origin.y + area.top),
+        static_cast<float>(origin.x + area.right), static_cast<float>(origin.x + area.bottom) });
 }
