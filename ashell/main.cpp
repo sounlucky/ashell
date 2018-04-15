@@ -10,13 +10,15 @@ int CALLBACK WinMain(
     HINSTANCE   ,
     LPSTR       ,
     int         
-) { 
+) {
     global_instance = instance;
-    borderless_window w(desktop::msg_callback);
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+    std::this_thread::sleep_for(std::chrono::seconds(15));
+    dbg << "start";
+    while (true){
+        std::vector<std::unique_ptr<borderless_window>> windows;
+        for (int i = 0; i < 1; ++i)
+            windows.emplace_back(new borderless_window(desktop::msg_callback));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+    dbg << "finish";
 }

@@ -15,9 +15,15 @@ typedef callback_ret_t(*msg_callback_t)(HWND, UINT, WPARAM, LPARAM);
 
 using id_t = uint16_t;
 
+struct hwnd_deleter {
+    void operator()(HWND* hwnd) {
+        DestroyWindow(*hwnd);
+    }
+};
+
 class borderless_window
 {
-    HWND hwnd;
+    std::unique_ptr<HWND, hwnd_deleter> hwnd;
     RECT rect;
     std::unique_ptr<WNDCLASSEX> wndclass_p;
     d2d1_unique_object<ID2D1Factory> factory;
@@ -25,10 +31,10 @@ class borderless_window
 
     static std::set<id_t> class_ids;
     id_t id;
-
+     
     std::wstring get_classname();
 public:
-    borderless_window(msg_callback_t, D2D1_SIZE_U);
+    borderless_window(msg_callback_t, RECT);
     borderless_window(msg_callback_t);//fullscreen
     ~borderless_window() = default;
 };

@@ -4,18 +4,23 @@ extern HINSTANCE global_instance;
 
 std::set<id_t> borderless_window::class_ids = std::set<id_t>();
 
-borderless_window::borderless_window(msg_callback_t callback) :
-    borderless_window(callback, {0, 0}) {
+RECT get_monitorsize() {
     //https://stackoverflow.com/questions/2156212/how-to-get-the-monitor-screen-resolution-from-a-hwnd
-    HMONITOR monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+    HMONITOR monitor = MonitorFromPoint({ 0,0 }, MONITOR_DEFAULTTOPRIMARY);
     MONITORINFO info;
     info.cbSize = sizeof(MONITORINFO);
     GetMonitorInfo(monitor, &info);
-    rect = info.rcMonitor;
+    return info.rcMonitor;
 }
 
-borderless_window::borderless_window(msg_callback_t callback, D2D1_SIZE_U size) :
-    wndclass_p(new WNDCLASSEX)
+borderless_window::borderless_window(msg_callback_t callback) :
+    borderless_window(callback, get_monitorsize()) {
+}
+
+borderless_window::borderless_window(msg_callback_t callback, RECT rect) :
+    wndclass_p(new WNDCLASSEX), 
+    rect(rect), 
+    hwnd(nullptr, hwnd_deleter())
 {
     wndclass_p->cbSize = sizeof(WNDCLASSEX);
     wndclass_p->style = CS_HREDRAW | CS_VREDRAW;
@@ -44,22 +49,34 @@ borderless_window::borderless_window(msg_callback_t callback, D2D1_SIZE_U size) 
     auto regged = RegisterClassEx(wndclass_p.get());
     assert(regged);
 
-    hwnd = CreateWindowEx(
+    auto temp_hwnd = CreateWindowEx(
         WS_EX_APPWINDOW,
         classname_copy.c_str(),
         nullptr,//no need for title (:
         WS_POPUP,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
-        size.width,
-        size.height,
+        rect.right - rect.left,
+        rect.bottom - rect.top,
         nullptr,
         nullptr,
         global_instance,
         nullptr);
+    hwnd.reset(&temp_hwnd);
     assert(hwnd);
 
-    //init factory
+    MoveWindow(
+        *hwnd.get(),
+        rect.left,
+        rect.top,
+        rect.right - rect.left,
+        rect.bottom - rect.top,
+        true
+    );
+    ShowWindow(*hwnd.get(), SW_RESTORE);
+    UpdateWindow(*hwnd.get());
+
+    //init factory  
     ID2D1Factory* tmp_pD2D1Factory = nullptr;
     auto res = D2D1CreateFactory(
         D2D1_FACTORY_TYPE_SINGLE_THREADED,
@@ -70,13 +87,12 @@ borderless_window::borderless_window(msg_callback_t callback, D2D1_SIZE_U size) 
 
     //init Direct2D render target	
     RECT rc;
-    GetClientRect(hwnd, &rc);
-		
+    GetClientRect(*hwnd.get(), &rc);
     ID2D1HwndRenderTarget* temp_rt = nullptr;
     res = factory->CreateHwndRenderTarget(
         D2D1::RenderTargetProperties(),
         D2D1::HwndRenderTargetProperties(
-            hwnd,
+            *hwnd.get(),
             D2D1::SizeU(
                 rc.right - rc.left,
                 rc.bottom - rc.top)
@@ -85,18 +101,8 @@ borderless_window::borderless_window(msg_callback_t callback, D2D1_SIZE_U size) 
     );
     assert(res == S_OK);
     render_target.reset(temp_rt);
-
-
-    render_target->BeginDraw();
-    static_image image(L"bg.jpg", render_target);
-    image.apply(render_target);
-    render_target->EndDraw();
-
-
-    auto res1 = ShowWindow(hwnd, SW_RESTORE);
-    auto res2 = UpdateWindow(hwnd);
 }
 
 std::wstring borderless_window::get_classname() {
-    return (std::wstring(L"please"));
+    return (std::wstring(L"class_") + std::to_wstring(id));
 }
