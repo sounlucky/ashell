@@ -1,5 +1,5 @@
 #include <windows.h>
-#include <gdiplus.h>
+#include <chrono>
 #include "desktop.h"
 
 HINSTANCE global_instance;
@@ -12,15 +12,11 @@ int CALLBACK WinMain(
     int         
 ) { 
     global_instance = instance;
-    
-    //init gdi plus
-    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
-    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
-
-    //init window clases
-    init_window_classes();
-    
-    //will not return
-    manage_desktop();
+    borderless_window w(desktop::msg_callback);
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
 }

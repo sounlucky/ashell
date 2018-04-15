@@ -39,10 +39,10 @@
     <ClCompile Include="tokenizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="window_classes.cpp">
+    <ClCompile Include="layer_hierarchy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="layer_hierarchy.cpp">
+    <ClCompile Include="window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,10 +80,10 @@
     <ClInclude Include="tokenizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="window_classes.h">
+    <ClInclude Include="window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="msdn_releaser.h">
+    <ClInclude Include="d2d1_object_wrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

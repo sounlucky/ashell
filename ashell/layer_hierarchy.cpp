@@ -6,16 +6,10 @@ void layer_hierarchy::add_layer(layer* raw_ptr){
     layers.push_back(std::move(unique_one));
 }
 
-void layer_hierarchy::apply(std::unique_ptr<ID2D1HwndRenderTarget>& rt){
-    for (layer_container::size_type i = 0; i < layers.size(); ) {
+void layer_hierarchy::apply(d2d1_unique_object<ID2D1HwndRenderTarget>& rt){
+    for (layer_container::size_type i = 0; i < layers.size(); ++i) {
         auto& layer = layers[i];
         assert(layer.get());
         layer->apply(rt);
-        if (layer->is_done()) {
-            layers.erase(layers.begin() + i);
-        }
-        else {
-            ++i;
-        }
     }
 }

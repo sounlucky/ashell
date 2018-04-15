@@ -13,7 +13,11 @@ template <class T> void SafeRelease(T **ppT)
 template<class T>
 class d2d1_unique_object {
     std::unique_ptr<T, void(*)(T*)> ptr;
-    
+public:
+    d2d1_unique_object() :
+        d2d1_unique_object(nullptr)
+    {}
+
     template<class ctr_t>
     d2d1_unique_object(ctr_t arg):
         ptr(
@@ -23,25 +27,15 @@ class d2d1_unique_object {
             })
     {}
 
-    T* operator->() const {
+    void reset(T* new_ptr) {
+        ptr.reset(new_ptr);
+    }
+
+    T* get() {
         return ptr.get();
     }
-};
 
-template<class T>
-class d2d1_shared_object {
-    std::shared_ptr<T, void(*)(T*)> ptr;
-
-    template<class ctr_t>
-    d2d1_unique_object(ctr_t arg) :
-        ptr(
-            arg,
-            [](T* item) {
-        SafeRelease(&item);
-    })
-    {}
-
-    T* operator->() const {
+    T* operator->() const throw() {
         return ptr.get();
     }
 };

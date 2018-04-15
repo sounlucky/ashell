@@ -3,6 +3,14 @@
 #include <string>
 #include <atomic>
 #include <memory>
+#include <thread>
+#include <cassert>
+#include <mutex>
+#include "dbg.h"
+#include "desktop.h"
+#include "layer_hierarchy.h"
+#include "static_image.h"
+#include "settings.h"
 #include "console_drawer.h"
 
 class console
@@ -15,7 +23,6 @@ class console
     void handle_keypress(wchar_t);
 public:
     static LRESULT CALLBACK msg_callback(HWND, UINT, WPARAM, LPARAM);
-    console();
     ~console();
 };
 

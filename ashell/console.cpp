@@ -1,8 +1,3 @@
-#include <thread>
-#include <windows.h>
-#include <cassert>
-#include <mutex>
-#include "settings.h"
 #include "console.h"
 
 extern HINSTANCE global_instance;
@@ -85,37 +80,6 @@ LRESULT CALLBACK console::msg_callback
     }
 }
 
-console::console(): 
-    hwnd(
-        CreateWindowEx(
-            WS_EX_APPWINDOW,
-            L"console_class",
-            nullptr,//no need for title (:
-            WS_POPUP,
-            0,
-            0,
-            settings::system::display_width,
-            settings::system::display_height,
-            nullptr,
-            nullptr,
-            global_instance,
-            nullptr)
-        )
-{
-    assert(hwnd);
-    SetWindowPos(
-        hwnd,                    // handle to window
-        HWND_TOPMOST,             // placement-order handle
-        0,                        // horizontal position
-        0,                        // vertical position
-        0,                        // width
-        0,                        // height
-        SWP_NOMOVE | SWP_NOSIZE); // window-positioning options);
-    SetForegroundWindow(hwnd);
-    ShowWindow(hwnd, SW_RESTORE);
-    UpdateWindow(hwnd);
-    drawer.reset(new console_drawer(hwnd));//after window is actually on
-}
 
 console::~console(){    
     console_access_manager::access().console_routine_running = false;

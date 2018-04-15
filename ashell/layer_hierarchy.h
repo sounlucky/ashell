@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include "layer.h"
+#include "d2d1_object_wrapper.h"
 
 class layer_hierarchy
 {
@@ -10,6 +11,6 @@ class layer_hierarchy
 public:
     layer_hierarchy() = default;
     void add_layer(layer*);//makes ptr unique, will free memory itself
-    void apply(std::unique_ptr<ID2D1HwndRenderTarget>&);
+    void apply(d2d1_unique_object<ID2D1HwndRenderTarget>&);
 };
 

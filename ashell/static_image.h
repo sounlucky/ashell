@@ -10,7 +10,7 @@ class static_image :
 {    
     d2d1_unique_object<ID2D1Bitmap> p_bitmap;
 public:
-    static_image(std::wstring, std::unique_ptr<ID2D1HwndRenderTarget>&, POINT);
-    static_image(std::wstring, std::unique_ptr<ID2D1HwndRenderTarget>&);
-    void static_image::apply(std::unique_ptr<ID2D1HwndRenderTarget>& render_target) override;
+    static_image(std::wstring, d2d1_unique_object<ID2D1HwndRenderTarget>&, POINT);
+    static_image(std::wstring, d2d1_unique_object<ID2D1HwndRenderTarget>&);
+    void static_image::apply(d2d1_unique_object<ID2D1HwndRenderTarget>& render_target) override;
 };

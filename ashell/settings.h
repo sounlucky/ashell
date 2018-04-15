@@ -16,8 +16,8 @@ namespace {
             auto open_key = VK_OEM_3;
             auto background_color = RGB(0xFF - 50, 0xFF - 50, 0xFF);//blue-ish
             auto text_color = RGB(0, 0, 0);
-            auto width_offset = system::display_width * 0.25f / 2;
-            auto width = system::display_width * 0.75f;
+            auto width_offset = 45;
+            auto width = 80;
             auto height_offset = 30;
             auto height = 40;
             auto fade = std::chrono::milliseconds(100);

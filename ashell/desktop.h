@@ -3,14 +3,17 @@
 #include <memory>
 #include <windows.h>
 #include <d2d1.h>
+#include "settings.h"
+#include "window.h"
+#include "console.h"
 #include "layer_hierarchy.h"
 
 extern HINSTANCE global_instance;
 
 class desktop {
-    layer_hierarchy layers;
+    borderless_window background_window;
 
-    desktop();
+    desktop() : background_window(msg_callback) {};
 
     void refresh_cycle();
 public:

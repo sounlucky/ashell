@@ -28,22 +28,22 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="static_image.cpp" />
     <ClCompile Include="tokenizer.cpp" />
-    <ClCompile Include="window_classes.cpp" />
+    <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animated_image.h" />
     <ClInclude Include="animated_image_helpers.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="console_drawer.h" />
+    <ClInclude Include="d2d1_object_wrapper.h" />
     <ClInclude Include="dbg.h" />
     <ClInclude Include="desktop.h" />
     <ClInclude Include="layer.h" />
     <ClInclude Include="layer_hierarchy.h" />
-    <ClInclude Include="msdn_releaser.h" />
     <ClInclude Include="settings.h" />
     <ClInclude Include="static_image.h" />
     <ClInclude Include="tokenizer.h" />
-    <ClInclude Include="window_classes.h" />
+    <ClInclude Include="window.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

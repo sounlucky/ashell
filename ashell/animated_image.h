@@ -18,6 +18,6 @@ public:
 
     virtual void on_start();
     virtual void on_finish();
-    virtual void apply(std::unique_ptr<ID2D1HwndRenderTarget>&) override;
+    virtual void apply(d2d1_unique_object<ID2D1HwndRenderTarget>&) override;
     virtual ~animated_image() {}
 };
