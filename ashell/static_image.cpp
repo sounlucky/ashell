@@ -12,11 +12,7 @@ static_image::static_image(std::wstring path, std::unique_ptr<ID2D1HwndRenderTar
 }
 
 static_image::static_image(std::wstring path, std::unique_ptr<ID2D1HwndRenderTarget>& render_target):
-    layer({0,0,0,0}),
-    p_bitmap(nullptr,
-        [](decltype(p_bitmap.get()) bitmap) {
-            SafeRelease(&bitmap);
-        }) 
+    layer({0,0,0,0})
 {
     IWICImagingFactory* d2dWICFactory = nullptr;
     IWICBitmapDecoder* d2dDecoder = nullptr;

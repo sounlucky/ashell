@@ -3,10 +3,6 @@
 
 namespace {
     namespace settings {
-        namespace system {
-            auto display_width = 1366;
-            auto display_height = 768;
-        }
         namespace internal{
             auto msg_input_delay = std::chrono::milliseconds(10);//experimentally
             auto delay = std::chrono::milliseconds(42); //24 fps is 1/24 spf is 1000/24 ~ 42 mspf

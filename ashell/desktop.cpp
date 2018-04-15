@@ -38,6 +38,7 @@ desktop::desktop() {
     );
     assert(res == S_OK);
     unq_factory.reset(tmp_pD2D1Factory);
+
     //init render target
     RECT rc;
     GetClientRect(hwnd, &rc);
@@ -65,6 +66,7 @@ void desktop::refresh_cycle(){
     size_t frame_counter = 0;
     auto second_start = std::chrono::high_resolution_clock::now();
     layers.add_layer(new static_image(L"bg.jpg", unq_render_target, {100, 0}));
+    layers.add_layer(new static_image(L"Banana.png", unq_render_target, { 250, 0 }));
     while (true) {
         auto lasterror = GetLastError();
         assert(lasterror == 0);
@@ -75,9 +77,6 @@ void desktop::refresh_cycle(){
         unq_render_target->BeginDraw();
         layers.apply(unq_render_target);
         unq_render_target->EndDraw();
-
-        //calculate graphics
-
 
         auto elapsed = std::chrono::high_resolution_clock::now() - frame_start;
         std::this_thread::sleep_for(settings::internal::delay - elapsed);

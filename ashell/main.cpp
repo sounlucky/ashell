@@ -1,6 +1,5 @@
 #include <windows.h>
 #include <gdiplus.h>
-#include "window_classes.h"
 #include "desktop.h"
 
 HINSTANCE global_instance;

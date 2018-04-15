@@ -2,13 +2,13 @@
 #include <string>
 #include <d2d1.h>
 #include "layer.h"
-#include "msdn_releaser.h"
+#include "d2d1_object_wrapper.h"
 
 //the class will free bitmap itself (:
 class static_image :
     public layer
 {    
-    std::unique_ptr<ID2D1Bitmap, void(*)(ID2D1Bitmap*)> p_bitmap;
+    d2d1_unique_object<ID2D1Bitmap> p_bitmap;
 public:
     static_image(std::wstring, std::unique_ptr<ID2D1HwndRenderTarget>&, POINT);
     static_image(std::wstring, std::unique_ptr<ID2D1HwndRenderTarget>&);
